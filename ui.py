@@ -60,7 +60,7 @@ class PlayerInterface(QLabel):
         ##  歌曲名
         self.song_title_sd = QtWidgets.QLabel(self)
         self.song_title_sd.setGeometry(64, 13, 400 - 128, 32)
-        self.song_title_sd.setStyleSheet("color:#222222")
+        self.song_title_sd.setStyleSheet("color:#aa222222")
         self.song_title_sd.setFont(perfectFont("微软雅黑",12, QFont.Normal))
         self.song_title_sd.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.song_title_sd.setText('')
@@ -75,7 +75,7 @@ class PlayerInterface(QLabel):
         ##  作者
         self.song_author_sd = QtWidgets.QLabel(self)
         self.song_author_sd.setGeometry(63, 45, 400 - 128, 16)
-        self.song_author_sd.setStyleSheet("color:#222222")
+        self.song_author_sd.setStyleSheet("color:#aa222222")
         self.song_author_sd.setFont(perfectFont("微软雅黑",8, QFont.Bold))
         self.song_author_sd.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.song_author_sd.setText('')
@@ -144,11 +144,17 @@ class PlayerInterface(QLabel):
         self.button_next_song.setPixmap(QtGui.QPixmap('./images/next_song.png',))
         self.button_next_song.setScaledContents(False)
         self.button_next_song.additional_style = 'border-radius:6px'
-        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.change_song_and_play(delta = 1))
+        #self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.changemisson_threadlized.append([None, 1]))
+        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.load_by_number(delta = 1))
+        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.play(0.0))
+        self.button_next_song.attached_function.append(lambda : self.parent.selecter_interface.updatePlaying())
         
         ##  暂停
-        self.button_pause_and_resume = QtWidgets.QLabel(self)
+        self.button_pause_and_resume = anidgets.anidgets.AniLabelLikeButton(self)
         self.button_pause_and_resume.setGeometry(200 - 20 - 4, 76, 40, 40)
+        self.button_pause_and_resume.attach_geometry_keyframe((200 - 20 - 4, 76, 40, 40), (200 - 20 - 4, 76, 40, 40))
+        self.button_pause_and_resume.attach_color_keyframe((255, 204, 34, 0), (255, 204, 34, 160))
+        self.button_pause_and_resume.additional_style = 'border-radius:8px'
         self.button_pause_and_resume.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.button_pause_and_resume.setPixmap(QtGui.QPixmap('./images/pause.png',))
         self.button_pause_and_resume.setScaledContents(False)
@@ -162,20 +168,23 @@ class PlayerInterface(QLabel):
         self.button_prev_song.setPixmap(QtGui.QPixmap('./images/prev_song.png',))
         self.button_prev_song.setScaledContents(False)
         self.button_prev_song.additional_style = 'border-radius:6px'
-        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.change_song_and_play(delta = -1))
+        #self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.changemisson_threadlized.append([None, -1]))
+        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.load_by_number(delta = -1))
+        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.play(0.0))
+        self.button_prev_song.attached_function.append(lambda : self.parent.selecter_interface.updatePlaying())
 
-
-
-    def refresh_info(self, update_cover = False):  # 更新 UI 面板上的信息，使用 update_cover = True 强制刷新封面
+    def refresh_info(self, update_cover = False, lazy = False):  # 更新 UI 面板上的信息，使用 update_cover = True 强制刷新封面
         mp = gbvar.musicplayer
         time_passed = mp.timer.get_time_passed()
         duration = mp.playing_duration
-        
-        self.set_song_info(mp.playing_title, mp.playing_artist)
+
         self.set_time_info(time_passed, duration)
+        if lazy:
+            return
+            
+        self.set_song_info(mp.playing_title, mp.playing_artist)
         
-        if self.playing_index_historial != mp.playing_index or update_cover:
-            self.playing_index_historial = mp.playing_index
+        if update_cover:
             cover_path = mp.playing_cover_path
             self.player_head_bg.setStyleSheet("background-image:url({});border-radius:6px".format(cover_path))
 
@@ -199,25 +208,126 @@ class SelecterInterface(QLabel):
     def __init__(self, parent = None):
         super(SelecterInterface, self).__init__(parent)
         self.parent = parent
+        self.songs_labels = []
         
         self.selecter_body = anidgets.aniLabel.AniLabel(self)
         self.selecter_body.setGeometry(0, 0, 400, 556)   #  初始折叠状态没有厚度
+        self.selecter_body.animation_finish_threshold = 12
         self.selecter_body.attach_geometry_keyframe((0, 0, 400, 0), (0, 0, 400, 556))
         self.selecter_body.attach_opacity_keyframe(0, 1)
         self.selecter_body.attach_color_keyframe((51, 51, 51, 255), (51, 51, 51, 255))
-        self.selecter_body.additional_style = ';border-radius:6px'
+        self.selecter_body.additional_style = ';border: 1px solid #424242;border-radius:6px'
         self.selecter_body.interpolation_funcs = [anidgets.aniLabel.soft_in_out_interpolation_func_sqr_rev, anidgets.aniLabel.circle_out_func, anidgets.aniLabel.soft_in_out_interpolation_func_sqr_rev]
         # 此时已经定义完毕，可以给主界面的按钮绑定函数了
         print(type(self.parent))
         self.parent.parent.player_interface.button_openlist.attached_function.append(lambda : animation_trigger(self.selecter_body))
         
+        self.label_frame = QtWidgets.QLabel(self.selecter_body)
+        self.label_frame.setGeometry(1, 16, 400-2, 556 - 48)
+        self.label_frame.setStyleSheet("background-color:Transparent;border: 0px")
+        self.label_frame.obj_parent = self  # 用于回调
         
+        #self.load([[song.title, song.artist] for song in gbvar.musicplayer.songs])
+        self.load(gbvar.musicplayer.songs)
+        self.selecter_body.activate_backward_ani()
         
-        
-        
-        
-        
+    def load(self, songs):
+        y = 0
+        h = 24
+        for index, song in enumerate(songs):
+            data = [song.title, song.artist, song.uid]
+            self.songs_labels.append(SongNameBarInSelector(index+1, data, self.label_frame))
+            self.songs_labels[-1].setGeometry(12, y, 400 - 24, h)
+            y += h
 
+        self.playing_uid = self.songs_labels[0].uid
+        self.updatePlaying()
+
+    def applyPlaying(self, index):
+        mp = gbvar.musicplayer
+        
+        # 把正在播放的对象的标签播放状态设为 False
+        for obj in self.songs_labels:
+            if obj.uid == self.playing_uid:
+                obj.setPlaying(False)
+                
+        self.songs_labels[index].setPlaying(True)
+        self.playing_uid = self.songs_labels[index].uid
+        mp.load_by_uid(self.playing_uid)
+        mp.play(0.0)
+
+    def updatePlaying(self):  # 按钮使用时，调用这个方法
+        mp = gbvar.musicplayer
+        for obj in self.songs_labels:
+            if obj.uid == self.playing_uid:
+                obj.setPlaying(False)
+            if obj.uid == mp.playing_uid:
+                obj.setPlaying(True)
+        self.playing_uid = mp.playing_uid
+
+
+class SongNameBarInSelector(QLabel):
+    def __init__(self, index, data, parent = None):
+        super(SongNameBarInSelector, self).__init__(parent)
+        self.parent = parent
+        self.index = index
+        self.title, self.artist, self.uid = data
+        self.is_playing = False
+        
+        h = 24
+        self.normal_color = '#fcfcfc'
+        self.enphasis_color = '#ffcc22'
+        
+        self.color_bar = QtWidgets.QLabel(self)
+        self.color_bar.setGeometry(0, 0, 400 - 24, h)
+        self.color_bar.setStyleSheet("background-color:Transparent;border: 0px")
+        
+        self.index_bar = QtWidgets.QLabel(self)
+        self.index_bar.setGeometry(0, 0, 32, h)
+        self.index_bar.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.index_bar.setStyleSheet("color:#666666;border: 0px")
+        self.index_bar.setFont(perfectFont("微软雅黑",8, QFont.Normal))
+        self.index_bar.setText('{}'.format(self.index))
+        
+        self.info_bar = QtWidgets.QLabel(self)
+        self.info_bar.setGeometry(32+12, 0, 400 - 24 - 44, h)
+        self.info_bar.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.info_bar.setStyleSheet("color:#666666;border: 0px")
+        self.info_bar.setFont(perfectFont("微软雅黑",8, QFont.Normal))
+        self.info_bar.setText("<font color={}>".format(self.enphasis_color if self.is_playing else self.normal_color) + self.title + "</font>" + "&nbsp;&nbsp;&nbsp;" + "<font color=#aaaaaa><strong>" + self.artist + "</strong></font>")
+
+    def setPlaying(self, status):
+        self.is_playing = status
+        self.info_bar.setText("<font color={}>".format(self.enphasis_color if self.is_playing else self.normal_color) + self.title + "</font>" + "&nbsp;&nbsp;&nbsp;" + "<font color=#aaaaaa><strong>" + self.artist + "</strong></font>")
+        
+        if status == True:
+            self.color_bar.setStyleSheet("background-color:#20ffcc22;border: 0px")
+            self.index_bar.setStyleSheet("color:#aaaaaa;border: 0px")
+        else:
+            self.color_bar.setStyleSheet("background-color:Transparent;border: 0px")
+            self.index_bar.setStyleSheet("color:#666666;border: 0px")
+
+    def enterEvent(self, event):
+        if self.is_playing == False:
+            self.color_bar.setStyleSheet("background-color:#20ffffff;border: 0px")
+            self.index_bar.setStyleSheet("color:#666666;border: 0px")
+        else:
+            self.color_bar.setStyleSheet("background-color:#30ffcc22;border: 0px")
+            self.index_bar.setStyleSheet("color:#aaaaaa;border: 0px")
+
+    def leaveEvent(self, event):
+        if self.is_playing == False:
+            self.color_bar.setStyleSheet("background-color:Transparent;border: 0px")
+            self.index_bar.setStyleSheet("color:#666666;border: 0px")
+        else:
+            self.color_bar.setStyleSheet("background-color:#20ffcc22;border: 0px")
+            self.index_bar.setStyleSheet("color:#aaaaaa;border: 0px")
+
+    def mousePressEvent(self, event):
+        self.parent.obj_parent.applyPlaying(self.index - 1)
+
+        
+        
 
 class moveWindow(QLabel):
     def __init__(self, parent, window):
@@ -244,6 +354,8 @@ class UserInterface(QMainWindow):
     def __init__(self):
         super().__init__()
         gbvar.gblog.log('初始化图形界面')
+        gbvar.ui = self
+        
         self._font_title = QFont("微软雅黑",11, QFont.Normal)
         
         self.initUI()
@@ -255,7 +367,7 @@ class UserInterface(QMainWindow):
     
         self.setWindowFlags(Qt.FramelessWindowHint)  # 去边框
         self.setAttribute(Qt.WA_TranslucentBackground)  # 设置窗口背景透明
-        self.setGeometry(0, 0, 440, 740)
+        self.setGeometry(1000, 500, 440, 740)
         self.setWindowTitle("Testing")
         self.setWindowFlag(Qt.WindowStaysOnTopHint,True)
 
@@ -278,6 +390,7 @@ class UserInterface(QMainWindow):
         self.player_interface = PlayerInterface(self.player_head)
         self.player_interface.setGeometry(0, 0, 400, 128)
         self.player_interface.set_progress(0.4)
+        self.player_interface.parent = self
         #self.player_interface.set_infomation('Theres the name of songs', 'name of author')
         
         ##  拖动窗口事件handler 这个玩意要置顶（即必须最后实例化） 要不然摸不到
