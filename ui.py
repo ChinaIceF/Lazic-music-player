@@ -59,35 +59,31 @@ class PlayerInterface(QLabel):
         self.player_head_shadow.setStyleSheet("background-color:#30000000;border-radius:6px")
         
         ##  歌曲名
-        self.song_title_sd = QtWidgets.QLabel(self)
-        self.song_title_sd.setGeometry(64, 13, 400 - 128, 32)
-        self.song_title_sd.setStyleSheet("color:#aa222222")
-        self.song_title_sd.setFont(perfectFont("微软雅黑",12, QFont.Normal))
-        self.song_title_sd.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
-        self.song_title_sd.setText('')
-        
         self.song_title = QtWidgets.QLabel(self)
         self.song_title.setGeometry(64, 12, 400 - 128, 32)
         self.song_title.setStyleSheet("color:#ffffff")
         self.song_title.setFont(perfectFont("微软雅黑",12, QFont.Normal))
         self.song_title.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.song_title.setText('')
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(4)  # 阴影模糊半径
+        shadow.setColor(QtGui.QColor(0, 0, 0, 255))  # 阴影颜色和不透明度
+        shadow.setOffset(0, 0)  # 阴影偏移量
+        self.song_title.setGraphicsEffect(shadow)
         
         ##  作者
-        self.song_author_sd = QtWidgets.QLabel(self)
-        self.song_author_sd.setGeometry(63, 45, 400 - 128, 16)
-        self.song_author_sd.setStyleSheet("color:#aa222222")
-        self.song_author_sd.setFont(perfectFont("微软雅黑",8, QFont.Bold))
-        self.song_author_sd.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
-        self.song_author_sd.setText('')
-        
         self.song_author = QtWidgets.QLabel(self)
         self.song_author.setGeometry(64, 44, 400 - 128, 16)
         self.song_author.setStyleSheet("color:#ffffff")
         self.song_author.setFont(perfectFont("微软雅黑",8, QFont.Bold))
         self.song_author.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.song_author.setText('')
-
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(4)  # 阴影模糊半径
+        shadow.setColor(QtGui.QColor(0, 0, 0, 255))  # 阴影颜色和不透明度
+        shadow.setOffset(0, 0)  # 阴影偏移量
+        self.song_author.setGraphicsEffect(shadow)
+        
         ## 操作框阴影
         self.buttons_sd = QtWidgets.QLabel(self)
         self.buttons_sd.setGeometry(0, 74, 400, 128 - 74)
@@ -198,9 +194,7 @@ class PlayerInterface(QLabel):
         self.progress_bar.value_changed(x, source)
        
     def set_song_info(self, title, author):
-        self.song_title_sd.setText(title)
         self.song_title.setText(title)
-        self.song_author_sd.setText(author)
         self.song_author.setText(author)
     
     def pause_or_resume(self):
@@ -220,7 +214,7 @@ class SelecterInterface(QLabel):
         super(SelecterInterface, self).__init__(parent)
         self.parent = parent
         self.songs_labels = []
-        
+
         self.selecter_body = anidgets.aniLabel.AniLabel(self)
         self.selecter_body.setGeometry(0, 0, 400, 556)   #  初始折叠状态没有厚度
         self.selecter_body.animation_finish_threshold = 12
@@ -233,23 +227,30 @@ class SelecterInterface(QLabel):
         #print(type(self.parent))
         self.parent.parent.player_interface.button_openlist.attached_function.append(lambda : animation_trigger(self.selecter_body))
         
-        self.label_frame = QtWidgets.QLabel(self.selecter_body)
-        self.label_frame.setGeometry(1, 16, 400-2, 556 - 48)
+        self.label_frame = anidgets.AniScrollArea(self.selecter_body)
+        self.label_frame.setGeometry(1, 16, 400-2, 556 - 24)
         self.label_frame.setStyleSheet("background-color:Transparent;border: 0px")
-        self.label_frame.obj_parent = self  # 用于回调
+        #self.label_frame.obj_parent = self  # 用于回调
         
         #self.load([[song.title, song.artist] for song in gbvar.musicplayer.songs])
         self.load(gbvar.musicplayer.songs)
         self.selecter_body.activate_backward_ani()
         
     def load(self, songs):
+    
+        self.scroll_frame = QLabel(self.label_frame)
+        self.scroll_frame.obj_parent = self  # 用于回调
+    
         y = 0
         h = 24
         for index, song in enumerate(songs):
             data = [song.title, song.artist, song.uid]
-            self.songs_labels.append(SongNameBarInSelector(index+1, data, self.label_frame))
+            self.songs_labels.append(SongNameBarInSelector(index+1, data, self.scroll_frame))
             self.songs_labels[-1].setGeometry(12, y, 400 - 24, h)
             y += h
+        
+        self.scroll_frame.setGeometry(0, 0, 400-2, y)
+        self.label_frame.setScrollFrame(self.scroll_frame, y, 556 - 24)
 
         self.playing_uid = self.songs_labels[0].uid
         self.updatePlaying()
