@@ -47,7 +47,7 @@ class Song(object):
             
         if song_type == 'MP3':
             audio = mutagen.File(file_path)
-            name = audio.tags["TALB"].text[0]
+            name = audio.tags["TIT2"].text[0]
             artist = audio.tags["TPE1"].text[0]
             return name, artist
         
@@ -131,10 +131,16 @@ class musicPlayer(object):
         self.playing_sound_array, self.playing_sample_rate, self.playing_duration = song_data
         gbvar.gblog.log('歌曲 {} 已载入'.format(self.playing_title))
     
-    def play(self, precent):
+    def play(self, precent, reset = False):
         self.is_playing = True
         sounddevice.play(self.playing_sound_array[int(precent * len(self.playing_sound_array)):], self.playing_sample_rate)
-        self.timer.reset_timer(precent)
+        
+        if reset:
+            self.timer.reset_timer(precent)
+    
+    def stop(self):
+        self.is_playing = False
+        sounddevice.stop()
     
     def load_by_number(self, index = None, delta = 0):  # 按编号运行 self.load() 方法
         if self.songs == []:
@@ -168,11 +174,10 @@ class musicPlayer(object):
        
     def change_song_and_play(self, index = None, delta = 0):  # ui 调用这个方法，加载歌曲并播放
         self.load_by_number(index = index, delta = delta)
-        self.play(0.0)
+        self.play(0.0, reset = True)
 
     def trigger_test(self):
-        self.load_by_number(delta = 1)
-        self.play(0.0)
+        self.change_song_and_play(delta = 1)
         gbvar.ui.selecter_interface.updatePlaying()
         #self.changemisson_threadlized.append([None, 1])
 
@@ -181,10 +186,11 @@ class musicPlayer(object):
             return ((self.playing_title, self.playing_artist, self.playing_cover_path), (None, self.playing_sample_rate, self.playing_duration))
         return ((self.playing_title, self.playing_artist, self.playing_cover_path), (self.playing_sound_array, self.playing_sample_rate, self.playing_duration))
 
-
-
-
-
-
-
-
+    def pause(self):
+        self._progress = gbvar.playing_song_progress
+        self.timer.timer.pause()
+        self.stop()
+    
+    def resume(self):
+        self.play(self._progress)
+        self.timer.timer.resume()

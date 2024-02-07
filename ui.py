@@ -43,6 +43,7 @@ class PlayerInterface(QLabel):
         
         gbvar.update_infomation = self.refresh_info
         self.playing_index_historial = -1
+        self.playing_status = True # 是否正在播放
         
         ##  背景图
         self.player_head_bg = QtWidgets.QLabel(self)
@@ -145,8 +146,7 @@ class PlayerInterface(QLabel):
         self.button_next_song.setScaledContents(False)
         self.button_next_song.additional_style = 'border-radius:6px'
         #self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.changemisson_threadlized.append([None, 1]))
-        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.load_by_number(delta = 1))
-        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.play(0.0))
+        self.button_next_song.attached_function.append(lambda : gbvar.musicplayer.change_song_and_play(delta = 1))
         self.button_next_song.attached_function.append(lambda : self.parent.selecter_interface.updatePlaying())
         
         ##  暂停
@@ -158,6 +158,7 @@ class PlayerInterface(QLabel):
         self.button_pause_and_resume.setAlignment(QtCore.Qt.AlignCenter|Qt.AlignCenter)
         self.button_pause_and_resume.setPixmap(QtGui.QPixmap('./images/pause.png',))
         self.button_pause_and_resume.setScaledContents(False)
+        self.button_pause_and_resume.attached_function.append(lambda : self.pause_or_resume())
         
         ##  上一曲
         self.button_prev_song = anidgets.anidgets.AniLabelLikeButton(self)
@@ -169,13 +170,12 @@ class PlayerInterface(QLabel):
         self.button_prev_song.setScaledContents(False)
         self.button_prev_song.additional_style = 'border-radius:6px'
         #self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.changemisson_threadlized.append([None, -1]))
-        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.load_by_number(delta = -1))
-        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.play(0.0))
+        self.button_prev_song.attached_function.append(lambda : gbvar.musicplayer.change_song_and_play(delta = -1))
         self.button_prev_song.attached_function.append(lambda : self.parent.selecter_interface.updatePlaying())
 
     def refresh_info(self, update_cover = False, lazy = False):  # 更新 UI 面板上的信息，使用 update_cover = True 强制刷新封面
         mp = gbvar.musicplayer
-        time_passed = mp.timer.get_time_passed()
+        time_passed = mp.timer.timer.elapsed_time()
         duration = mp.playing_duration
 
         self.set_time_info(time_passed, duration)
@@ -203,6 +203,17 @@ class PlayerInterface(QLabel):
         self.song_author_sd.setText(author)
         self.song_author.setText(author)
     
+    def pause_or_resume(self):
+        self.playing_status = not self.playing_status
+        mp = gbvar.musicplayer
+        if self.playing_status == True:
+            mp.resume()
+            self.button_pause_and_resume.setPixmap(QtGui.QPixmap('./images/pause.png',))
+        else:
+            mp.pause()
+            self.button_pause_and_resume.setPixmap(QtGui.QPixmap('./images/resume.png',))
+        
+        
 
 class SelecterInterface(QLabel):
     def __init__(self, parent = None):
@@ -219,7 +230,7 @@ class SelecterInterface(QLabel):
         self.selecter_body.additional_style = ';border: 1px solid #424242;border-radius:6px'
         self.selecter_body.interpolation_funcs = [anidgets.aniLabel.soft_in_out_interpolation_func_sqr_rev, anidgets.aniLabel.circle_out_func, anidgets.aniLabel.soft_in_out_interpolation_func_sqr_rev]
         # 此时已经定义完毕，可以给主界面的按钮绑定函数了
-        print(type(self.parent))
+        #print(type(self.parent))
         self.parent.parent.player_interface.button_openlist.attached_function.append(lambda : animation_trigger(self.selecter_body))
         
         self.label_frame = QtWidgets.QLabel(self.selecter_body)
@@ -254,7 +265,7 @@ class SelecterInterface(QLabel):
         self.songs_labels[index].setPlaying(True)
         self.playing_uid = self.songs_labels[index].uid
         mp.load_by_uid(self.playing_uid)
-        mp.play(0.0)
+        mp.play(0.0, reset = True)
 
     def updatePlaying(self):  # 按钮使用时，调用这个方法
         mp = gbvar.musicplayer
