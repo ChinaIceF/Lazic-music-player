@@ -84,12 +84,11 @@ class AniLabel(QLabel):
         #gbvar.reg_hotkey('esc+a', self.Hotkey_handler)
         self.called_counts = 0
         
-        frames = 16
         # 绑定动画信号
         self.delta_pos = numpy.array((0, 0))
         self.finish_flag = False
         self.animation_progress = 0
-        self.animation_finish_threshold = frames
+        self.animation_finish_threshold = 16
         
         self.animation_forward_thread = AniLabel_Ani_Thread(self)
         self.animation_forward_thread.time_changed_signal.connect(self.change_position)
