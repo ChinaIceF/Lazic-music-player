@@ -23,6 +23,6 @@ A simple music player that based on Python which is inspired by the designs of [
 Put the songs into the folder 'songListTest' and run start.py, then enjoy it.<br>
 将歌曲放入 songListTest 文件夹，运行 start.py 即可<br><br>
 
-## Codes (For Developers) 代码相关
+## Code (For Developers) 代码相关
 I'm keep trying to finish this part of introduction. - 2024.2.7<br>
 没写完，等着<br><br>
