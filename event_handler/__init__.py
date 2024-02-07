@@ -16,8 +16,17 @@ Evt_monitor.register('esc+q', test_func)
 
 def start():
     while True:
-        time.sleep(0.001)
+        time.sleep(0.01)
+
         if len(gbvar.musicplayer.playmisson_threadlized) > 0:
-            gbvar.musicplayer.play(gbvar.musicplayer.playmisson_threadlized.pop(0))
+            gbvar.musicplayer.play(gbvar.musicplayer.playmisson_threadlized.pop(0), reset = True)
+
+        if len(gbvar.musicplayer.changemisson_threadlized) > 0:
+            args = gbvar.musicplayer.changemisson_threadlized[-1]
+            gbvar.musicplayer.changemisson_threadlized = []
+            gbvar.musicplayer.change_song_and_play(index = args[0], delta = args[1])
         
         gbvar.musicplayer.timer.update_ui()
+        gbvar.musicplayer.timer.check_if_song_is_finished()
+        gbvar.playing_song_progress = gbvar.musicplayer.timer.get_time_passed() / gbvar.musicplayer.playing_duration
+
