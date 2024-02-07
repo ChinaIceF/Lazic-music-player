@@ -6,6 +6,9 @@ A simple music player that based on Python which is inspired by the designs in O
 · It is necessary to point out that this project is independently developed by enthusiasts, only drawing on the art and design of related projects, and has no necessary connection with related projects. Any consequences caused by users are not the responsibility of the open source platform, the developers of this project, or the developers of related projects <br>
 有必要指出，本项目为爱好者自主开发，仅借鉴相关项目中的艺术设计，与相关项目并无必然联系，由使用者引起的任何后果，开源平台、本项目的开发者和相关项目的开发者不承担任何责任 <br><br>
 
+· Of course, we welcome users to support related projects <br>
+如果可以的话，也请多多支持相关项目（我就是个臭打音游的不想写这么多阿巴阿巴 :D） <br><br>
+
 
 ## Features 特点
 · Highly similar to the music player in game OSU!Lazer. <br>
