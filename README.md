@@ -9,7 +9,6 @@ A simple music player that based on Python which is inspired by the designs in O
 · Of course, we welcome users to support related projects <br>
 如果可以的话，也请多多支持相关项目（我就是个臭打音游的不想写这么多阿巴阿巴 :D） <br><br>
 
-
 ## Features 特点
 · Highly similar to the music player in game OSU!Lazer. <br>
   与 OSU!Lazer 中的音乐播放器高度相似 <br><br>
@@ -20,7 +19,10 @@ A simple music player that based on Python which is inspired by the designs in O
 · With beautiful interface. <br>
   界面美观 <br><br>
 
-
-## How To Use 食用方法
+## How To Use (For Basic Users) 基本使用方法
 Put the songs into the folder 'songListTest' and run start.py, then enjoy it.<br>
 将歌曲放入 songListTest 文件夹，运行 start.py 即可<br><br>
+
+## Codes (For Developers) 代码相关
+I'm keep trying to finish this part of introduction. - 2024.2.7<br>
+没写完，等着<br><br>
