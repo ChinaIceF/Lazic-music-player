@@ -24,7 +24,10 @@ Put the songs into the folder 'songListTest' and run start.py, then enjoy it.<br
 将歌曲放入 songListTest 文件夹，运行 start.py 即可<br><br>
 
 You can also use PyInstaller to build the project into executable form. <br>
-你也可以借助 PyInstaller 来将本项目打包成可执行文件（.exe）<br>
+你也可以借助 PyInstaller 来将本项目打包成可执行文件（.exe）<br><br>
+
+On Windows Platforms, for instance, you can just simply run this command as following:<br>
+以 Windows 平台为例，你可以在命令行窗口输入以下命令来完成打包：<br>
 ```
 pyinstaller --onefile --noconsole start.py
 ```
