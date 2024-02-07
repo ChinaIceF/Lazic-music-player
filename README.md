@@ -3,15 +3,10 @@ A simple music player that based on Python which is inspired by the designs in O
 一个参考OSU!Lazer设计风格的简单音乐播放器，基于Python编写
 
 ## Features 特点
-Highly similar to the music player in game OSU!Lazer.
+Highly similar to the music player in game OSU!Lazer. <br>
+Involving a smoother animation library, providing a better visual experience <br>
+With beautiful interface. <br><br>
 
-Involving a smoother animation library, providing a better visual experience
-
-With beautiful interface.
-
-
-与 OSU!Lazer 中的音乐播放器高度相似
-
-具有更流畅的动画库，提供更加良好的视觉体验
-
-界面美观
+与 OSU!Lazer 中的音乐播放器高度相似 <br>
+具有更流畅的动画库，提供更加良好的视觉体验 <br>
+界面美观 <br>
