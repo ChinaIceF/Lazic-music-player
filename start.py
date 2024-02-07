@@ -22,7 +22,10 @@ if __name__ == '__main__':
     gbvar.musicplayer = music.musicPlayer()
 
     for file in list(os.walk('./songListTest/'))[0][2]:
-        gbvar.musicplayer.add('./songListTest/' + file)
+        try:
+            gbvar.musicplayer.add('./songListTest/' + file)
+        except:
+            print('Ignored file {} which failed to load.'.format(file))
 
     gbvar.musicplayer.load_by_number(index = 0)
 
