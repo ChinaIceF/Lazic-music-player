@@ -2,6 +2,11 @@
 A simple music player that based on Python which is inspired by the designs in OSU!Lazer<br>
 一个参考 [OSU!Lazer](https://github.com/ppy/osu) 设计风格的简单音乐播放器，基于Python编写<br><br>
 
+## Something You HAVE TO KNOW 写在前面
+· It is necessary to point out that this project is independently developed by enthusiasts, only drawing on the art and design of related projects, and has no necessary connection with related projects. Any consequences caused by users are not the responsibility of the open source platform, the developers of this project, or the developers of related projects <br>
+有必要指出，本项目为爱好者自主开发，仅借鉴相关项目中的艺术设计，与相关项目并无必然联系，由使用者引起的任何后果，开源平台、本项目的开发者和相关项目的开发者不承担任何责任 <br><br>
+
+
 ## Features 特点
 · Highly similar to the music player in game OSU!Lazer. <br>
   与 OSU!Lazer 中的音乐播放器高度相似 <br><br>
