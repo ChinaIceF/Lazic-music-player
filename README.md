@@ -13,4 +13,6 @@ A simple music player that based on Python which is inspired by the designs in O
   界面美观 <br><br>
 
 
-
+## How To Use 食用方法
+Put the songs into the folder 'songListTest' and run start.py, then enjoy it.<br>
+将歌曲放入 songListTest 文件夹，运行 start.py 即可<br><br>
